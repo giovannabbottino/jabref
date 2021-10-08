@@ -66,7 +66,6 @@ public class LayoutEntryTest {
 
         return layout.doLayout(entry, null);
     }
-
     @Test
     public void testParseMethodCalls() {
 
@@ -95,4 +94,97 @@ public class LayoutEntryTest {
         assertEquals("test", (LayoutEntry.parseMethodsCalls("bla(test),foo(fark)").get(0)).get(1));
         assertEquals("fark", (LayoutEntry.parseMethodsCalls("bla(test),foo(fark)").get(1)).get(1));
     }
+
+    @Test
+    public void testParseMethodsCallsEmpty(){
+        assertEquals(0, LayoutEntry.parseMethodsCalls("").size());
+    }
+
+    @Test
+    public void testParseMethodsCallsOnlyJavaIdentifier(){
+        assertEquals(1, LayoutEntry.parseMethodsCalls("__").size());
+        assertEquals("__", (LayoutEntry.parseMethodsCalls("__").get(0)).get(0));
+    }
+
+    @Test
+    public void testParseMethodsCallsJavaIdentifier(){
+        // begin
+        assertEquals(1, LayoutEntry.parseMethodsCalls("_test").size());
+        assertEquals("_test", (LayoutEntry.parseMethodsCalls("_test").get(0)).get(0));
+        // mid
+        assertEquals(1, LayoutEntry.parseMethodsCalls("test_test").size());
+        assertEquals("test_test", (LayoutEntry.parseMethodsCalls("test_test").get(0)).get(0));
+        // end
+        assertEquals(1, LayoutEntry.parseMethodsCalls("test_").size());
+        assertEquals("test_", (LayoutEntry.parseMethodsCalls("test_").get(0)).get(0));
+    }
+
+    @Test
+    public void testParseMethodsCallsOnlyDots(){
+        assertEquals(0, LayoutEntry.parseMethodsCalls("..").size());
+    }
+
+    @Test
+    public void testParseMethodsCallsDots(){
+        // begin
+        assertEquals(1, LayoutEntry.parseMethodsCalls(".test").size());
+        assertEquals(".test", (LayoutEntry.parseMethodsCalls(".test").get(0)).get(0));
+        // mid
+        assertEquals(1, LayoutEntry.parseMethodsCalls("test.test").size());
+        assertEquals("test.test", (LayoutEntry.parseMethodsCalls("test.test").get(0)).get(0));
+        // end
+        assertEquals(1, LayoutEntry.parseMethodsCalls("test.").size());
+        assertEquals("test.", (LayoutEntry.parseMethodsCalls("test.").get(0)).get(0));
+    }
+
+    @Test
+    public void testParseMethodsCallsJavaIdentifierAndDots(){
+        // begin
+        assertEquals(1, LayoutEntry.parseMethodsCalls("_.test").size());
+        assertEquals("_.test", (LayoutEntry.parseMethodsCalls("_.test").get(0)).get(0));
+        // mid
+        assertEquals(1, LayoutEntry.parseMethodsCalls("test_.test").size());
+        assertEquals("test_.test", (LayoutEntry.parseMethodsCalls("test_.test").get(0)).get(0));
+        // end
+        assertEquals(1, LayoutEntry.parseMethodsCalls("test_.").size());
+        assertEquals("test_.", (LayoutEntry.parseMethodsCalls("test_.").get(0)).get(0));
+    }
+
+    @Test
+    public void testParseMethodsCallsOnlyParentheses(){
+        assertEquals(0, LayoutEntry.parseMethodsCalls("()").size());
+        assertEquals(0, LayoutEntry.parseMethodsCalls("(").size());
+        assertEquals(0, LayoutEntry.parseMethodsCalls("(((").size());
+        assertEquals(0, LayoutEntry.parseMethodsCalls(")").size());
+    }
+
+    @Test
+    public void testParseMethodsCallsQuotation(){
+        // [[]] ("")
+        assertEquals(0, LayoutEntry.parseMethodsCalls("(\"\")").size());
+
+        // [["test", '"']]  test("")
+        assertEquals(1, LayoutEntry.parseMethodsCalls("test(\"\")").size());
+        assertEquals(2, LayoutEntry.parseMethodsCalls("test(\"\")").get(0).size());
+        assertEquals("test", LayoutEntry.parseMethodsCalls("test(\"\")").get(0).get(0));
+        assertEquals("\"", LayoutEntry.parseMethodsCalls("test(\"\")").get(0).get(1));
+
+        // [["test", "test2"]] test("test2")
+        assertEquals(1, LayoutEntry.parseMethodsCalls("test(\"test2\")").size());
+        assertEquals(2, LayoutEntry.parseMethodsCalls("test(\"test2\")").get(0).size());
+        assertEquals("test", LayoutEntry.parseMethodsCalls("test(\"test2\")").get(0).get(0));
+        assertEquals("test2", LayoutEntry.parseMethodsCalls("test(\"test2\")").get(0).get(1));
+
+        // [[]]  (")
+        assertEquals(0, LayoutEntry.parseMethodsCalls("(\")").size());
+
+    }
+
+    @Test
+    public void testParseMethodsCallsSlash (){
+        // [[]]
+        assertEquals(0, LayoutEntry.parseMethodsCalls("(\"\\\\\")").size());
+    }
+
+
 }
