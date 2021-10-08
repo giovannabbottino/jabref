@@ -128,7 +128,7 @@ public class LayoutEntryTest {
     public void testParseMethodsCallsDots(){
         // begin
         assertEquals(1, LayoutEntry.parseMethodsCalls(".test").size());
-        assertEquals(".test", (LayoutEntry.parseMethodsCalls(".test").get(0)).get(0));
+        assertEquals("test", (LayoutEntry.parseMethodsCalls(".test").get(0)).get(0));
         // mid
         assertEquals(1, LayoutEntry.parseMethodsCalls("test.test").size());
         assertEquals("test.test", (LayoutEntry.parseMethodsCalls("test.test").get(0)).get(0));
